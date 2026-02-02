@@ -2,41 +2,48 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>K-VIBE Dynamic AR Service</title>
+    <title>K-VIBE Stable AR Menu</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <style>
+      /* 버튼이 잘 눌리도록 커서(마우스) 스타일 지정 */
+      .clickable { cursor: pointer; }
+    </style>
   </head>
   
   <body style="margin: 0px; overflow: hidden;">
-    <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" cursor="fuse: false; rayOrigin: mouse">
+    <a-scene embedded 
+             arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;" 
+             cursor="fuse: false; rayOrigin: mouse"
+             raycaster="objects: .clickable">
       
       <a-assets>
         <video id="k-vibe-video" src="test.mp4" crossorigin="anonymous" playsinline webkit-playsinline></video>
         <img id="coupon-img" src="sample.jpg">
       </a-assets>
 
-      <a-marker preset="hiro" id="main-marker">
+      <a-marker preset="hiro" id="main-marker" emitevents="true">
         
         <a-entity position="0 0.1 -1.8" rotation="-90 0 0">
-          <a-text id="welcome-text" value="Loading..." align="center" color="#FFF" width="6"></a-text>
+          <a-text id="welcome-text" value="Welcome to K-VIBE" align="center" color="#FFF" width="6"></a-text>
         </a-entity>
 
         <a-video id="video-display" src="#k-vibe-video" position="0 0.5 -0.5" width="2" height="1.1" rotation="-90 0 0" visible="false"></a-video>
         <a-image id="coupon-display" src="#coupon-img" position="0 0.5 -0.5" width="1.5" height="1.5" rotation="-90 0 0" visible="false"></a-image>
 
-        <a-entity id="btn-video" position="-1.2 0.1 0.8" rotation="-90 0 0" class="clickable" onclick="showVideo()">
-          <a-plane color="#FF5722" width="1" height="0.4"></a-plane>
-          <a-text value="Watch Video" align="center" color="#FFF" width="3" position="0 0 0.1"></a-text>
+        <a-entity id="btn-video" position="-1.2 0.2 0.8" rotation="-90 0 0" class="clickable" onclick="showVideo()">
+          <a-plane color="#FF5722" width="1" height="0.5"></a-plane>
+          <a-text value="Video" align="center" color="#FFF" width="4" position="0 0 0.1"></a-text>
         </a-entity>
 
-        <a-entity id="btn-survey" position="0 0.1 0.8" rotation="-90 0 0" class="clickable" onclick="location.href='https://bit.ly/4qcWOQK'">
-          <a-plane id="survey-plane" color="#4CAF50" width="1" height="0.4"></a-plane>
-          <a-text value="Survey" align="center" color="#FFF" width="3" position="0 0 0.1"></a-text>
+        <a-entity id="btn-survey" position="0 0.2 0.8" rotation="-90 0 0" class="clickable" onclick="goToSurvey()">
+          <a-plane id="survey-plane" color="#4CAF50" width="1" height="0.5"></a-plane>
+          <a-text value="Survey" align="center" color="#FFF" width="4" position="0 0 0.1"></a-text>
         </a-entity>
 
-        <a-entity id="btn-coupon" position="1.2 0.1 0.8" rotation="-90 0 0" class="clickable" onclick="showCoupon()">
-          <a-plane color="#2196F3" width="1" height="0.4"></a-plane>
-          <a-text value="Coupon" align="center" color="#FFF" width="3" position="0 0 0.1"></a-text>
+        <a-entity id="btn-coupon" position="1.2 0.2 0.8" rotation="-90 0 0" class="clickable" onclick="showCoupon()">
+          <a-plane color="#2196F3" width="1" height="0.5"></a-plane>
+          <a-text value="Coupon" align="center" color="#FFF" width="4" position="0 0 0.1"></a-text>
         </a-entity>
       </a-marker>
 
@@ -44,52 +51,35 @@
     </a-scene>
 
     <script>
-      // 1. URL 파라미터 분석 로직
       const urlParams = new URLSearchParams(window.location.search);
-      const userType = urlParams.get('type'); // 'muslim' 또는 'tourist'
+      const userType = urlParams.get('type');
       const welcomeText = document.querySelector('#welcome-text');
-      const marker = document.querySelector('#main-marker');
 
-      // 2. 접속 타입에 따른 동적 화면 구성
+      // 무슬림 모드 설정 변경 적용
       if (userType === 'muslim') {
-          // 무슬림 모드 설정
-          welcomeText.setAttribute('value', 'Assalamu Alaikum! K-VIBE Halal Guide');
-          document.querySelector('#survey-plane').setAttribute('color', '#006400'); // 이슬람 녹색 강조
-
-          // 추가 할랄 안내 이미지 동적 생성 및 삽입
-          const halalInfo = document.createElement('a-image');
-          halalInfo.setAttribute('src', '#coupon-img'); 
-          halalInfo.setAttribute('position', '0 2.2 -0.5'); 
-          halalInfo.setAttribute('width', '1.8');
-          halalInfo.setAttribute('height', '1.1');
-          halalInfo.setAttribute('rotation', '-90 0 0');
-          marker.appendChild(halalInfo);
-      } else {
-          // 일반 관광객 모드 설정
-          welcomeText.setAttribute('value', 'Welcome to K-VIBE! Explore Korea');
+        welcomeText.setAttribute('value', 'Assalamu Alaikum! K-VIBE');
+        document.querySelector('#survey-plane').setAttribute('color', '#006400');
       }
 
-      // 3. 버튼 기능 구현
       const video = document.querySelector('#k-vibe-video');
       const videoDisplay = document.querySelector('#video-display');
       const couponDisplay = document.querySelector('#coupon-display');
 
       function showVideo() {
-          couponDisplay.setAttribute('visible', 'false');
-          videoDisplay.setAttribute('visible', 'true');
-          video.play();
+        couponDisplay.setAttribute('visible', 'false');
+        videoDisplay.setAttribute('visible', 'true');
+        video.play();
       }
 
       function showCoupon() {
-          video.pause();
-          videoDisplay.setAttribute('visible', 'false');
-          couponDisplay.setAttribute('visible', 'true');
+        video.pause();
+        videoDisplay.setAttribute('visible', 'false');
+        couponDisplay.setAttribute('visible', 'true');
       }
-
-      // 영상이 끝나면 설문지로 자동 이동 (선택 사항)
-      video.addEventListener('ended', function() {
-          location.href = "https://bit.ly/4qcWOQK";
-      });
+      
+      function goToSurvey() {
+        window.location.href = 'https://bit.ly/4qcWOQK';
+      }
     </script>
   </body>
 </html>

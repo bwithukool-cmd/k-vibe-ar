@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>K-VIBE Dynamic AR Menu</title>
+    <title>K-VIBE Dynamic AR Service</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
   </head>
@@ -15,25 +15,26 @@
         <img id="coupon-img" src="sample.jpg">
       </a-assets>
 
-      <a-marker preset="hiro">
-        <a-video id="video-display" src="#k-vibe-video" position="0 0.5 -1" width="2" height="1.1" rotation="-90 0 0" visible="false"></a-video>
-        <a-image id="coupon-display" src="#coupon-img" position="0 0.5 -1" width="1.5" height="1.5" rotation="-90 0 0" visible="false"></a-image>
-
+      <a-marker preset="hiro" id="main-marker">
+        
         <a-entity position="0 0.1 -1.8" rotation="-90 0 0">
           <a-text id="welcome-text" value="Loading..." align="center" color="#FFF" width="6"></a-text>
         </a-entity>
 
-        <a-entity id="btn-video" position="-1.2 0.1 0.5" rotation="-90 0 0" class="clickable" onclick="showVideo()">
+        <a-video id="video-display" src="#k-vibe-video" position="0 0.5 -0.5" width="2" height="1.1" rotation="-90 0 0" visible="false"></a-video>
+        <a-image id="coupon-display" src="#coupon-img" position="0 0.5 -0.5" width="1.5" height="1.5" rotation="-90 0 0" visible="false"></a-image>
+
+        <a-entity id="btn-video" position="-1.2 0.1 0.8" rotation="-90 0 0" class="clickable" onclick="showVideo()">
           <a-plane color="#FF5722" width="1" height="0.4"></a-plane>
           <a-text value="Watch Video" align="center" color="#FFF" width="3" position="0 0 0.1"></a-text>
         </a-entity>
 
-        <a-entity id="btn-survey" position="0 0.1 0.5" rotation="-90 0 0" class="clickable" onclick="window.location.href='https://bit.ly/4qcWOQK'">
-          <a-plane color="#4CAF50" width="1" height="0.4"></a-plane>
+        <a-entity id="btn-survey" position="0 0.1 0.8" rotation="-90 0 0" class="clickable" onclick="location.href='https://bit.ly/4qcWOQK'">
+          <a-plane id="survey-plane" color="#4CAF50" width="1" height="0.4"></a-plane>
           <a-text value="Survey" align="center" color="#FFF" width="3" position="0 0 0.1"></a-text>
         </a-entity>
 
-        <a-entity id="btn-coupon" position="1.2 0.1 0.5" rotation="-90 0 0" class="clickable" onclick="showCoupon()">
+        <a-entity id="btn-coupon" position="1.2 0.1 0.8" rotation="-90 0 0" class="clickable" onclick="showCoupon()">
           <a-plane color="#2196F3" width="1" height="0.4"></a-plane>
           <a-text value="Coupon" align="center" color="#FFF" width="3" position="0 0 0.1"></a-text>
         </a-entity>
@@ -43,35 +44,52 @@
     </a-scene>
 
     <script>
-      // 1. URL에서 파라미터 읽기
+      // 1. URL 파라미터 분석 로직
       const urlParams = new URLSearchParams(window.location.search);
-      const userType = urlParams.get('type'); 
+      const userType = urlParams.get('type'); // 'muslim' 또는 'tourist'
       const welcomeText = document.querySelector('#welcome-text');
+      const marker = document.querySelector('#main-marker');
 
-      // 2. 접속 타입에 따른 화면 설정 (무슬림/일반)
+      // 2. 접속 타입에 따른 동적 화면 구성
       if (userType === 'muslim') {
-        welcomeText.setAttribute('value', 'Assalamu Alaikum! K-VIBE'); // 무슬림 인사말
-        document.querySelector('#btn-survey').querySelector('a-plane').setAttribute('color', '#006400'); // 이슬람 상징색 녹색으로 변경
+          // 무슬림 모드 설정
+          welcomeText.setAttribute('value', 'Assalamu Alaikum! K-VIBE Halal Guide');
+          document.querySelector('#survey-plane').setAttribute('color', '#006400'); // 이슬람 녹색 강조
+
+          // 추가 할랄 안내 이미지 동적 생성 및 삽입
+          const halalInfo = document.createElement('a-image');
+          halalInfo.setAttribute('src', '#coupon-img'); 
+          halalInfo.setAttribute('position', '0 2.2 -0.5'); 
+          halalInfo.setAttribute('width', '1.8');
+          halalInfo.setAttribute('height', '1.1');
+          halalInfo.setAttribute('rotation', '-90 0 0');
+          marker.appendChild(halalInfo);
       } else {
-        welcomeText.setAttribute('value', 'Welcome to K-VIBE!');
+          // 일반 관광객 모드 설정
+          welcomeText.setAttribute('value', 'Welcome to K-VIBE! Explore Korea');
       }
 
-      // 기능 함수들
+      // 3. 버튼 기능 구현
       const video = document.querySelector('#k-vibe-video');
       const videoDisplay = document.querySelector('#video-display');
       const couponDisplay = document.querySelector('#coupon-display');
 
       function showVideo() {
-        couponDisplay.setAttribute('visible', 'false');
-        videoDisplay.setAttribute('visible', 'true');
-        video.play();
+          couponDisplay.setAttribute('visible', 'false');
+          videoDisplay.setAttribute('visible', 'true');
+          video.play();
       }
 
       function showCoupon() {
-        video.pause();
-        videoDisplay.setAttribute('visible', 'false');
-        couponDisplay.setAttribute('visible', 'true');
+          video.pause();
+          videoDisplay.setAttribute('visible', 'false');
+          couponDisplay.setAttribute('visible', 'true');
       }
+
+      // 영상이 끝나면 설문지로 자동 이동 (선택 사항)
+      video.addEventListener('ended', function() {
+          location.href = "https://bit.ly/4qcWOQK";
+      });
     </script>
   </body>
 </html>

@@ -2,13 +2,9 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>K-VIBE AR Interactive Menu</title>
+    <title>K-VIBE Dynamic AR Menu</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
-    <style>
-      /* 화면 중앙에 터치 안내 표시 */
-      .arjs-loader { height: 100%; width: 100%; position: absolute; top: 0; left: 0; background-color: rgba(0, 0, 0, 0.8); z-index: 9999; display: flex; justify-content: center; align-items: center; color: white; }
-    </style>
   </head>
   
   <body style="margin: 0px; overflow: hidden;">
@@ -16,27 +12,28 @@
       
       <a-assets>
         <video id="k-vibe-video" src="test.mp4" crossorigin="anonymous" playsinline webkit-playsinline></video>
-        <img id="coupon-img" src="coupon.jpg"> </a-assets>
+        <img id="coupon-img" src="sample.jpg">
+      </a-assets>
 
       <a-marker preset="hiro">
         <a-video id="video-display" src="#k-vibe-video" position="0 0.5 -1" width="2" height="1.1" rotation="-90 0 0" visible="false"></a-video>
-        
         <a-image id="coupon-display" src="#coupon-img" position="0 0.5 -1" width="1.5" height="1.5" rotation="-90 0 0" visible="false"></a-image>
 
-        <a-entity id="btn-video" position="-1.2 0.1 0.5" rotation="-90 0 0" 
-                  class="clickable" onclick="showVideo()">
+        <a-entity position="0 0.1 -1.8" rotation="-90 0 0">
+          <a-text id="welcome-text" value="Loading..." align="center" color="#FFF" width="6"></a-text>
+        </a-entity>
+
+        <a-entity id="btn-video" position="-1.2 0.1 0.5" rotation="-90 0 0" class="clickable" onclick="showVideo()">
           <a-plane color="#FF5722" width="1" height="0.4"></a-plane>
           <a-text value="Watch Video" align="center" color="#FFF" width="3" position="0 0 0.1"></a-text>
         </a-entity>
 
-        <a-entity id="btn-survey" position="0 0.1 0.5" rotation="-90 0 0"
-                  class="clickable" onclick="window.location.href='https://bit.ly/4qcWOQK'">
+        <a-entity id="btn-survey" position="0 0.1 0.5" rotation="-90 0 0" class="clickable" onclick="window.location.href='https://bit.ly/4qcWOQK'">
           <a-plane color="#4CAF50" width="1" height="0.4"></a-plane>
           <a-text value="Survey" align="center" color="#FFF" width="3" position="0 0 0.1"></a-text>
         </a-entity>
 
-        <a-entity id="btn-coupon" position="1.2 0.1 0.5" rotation="-90 0 0"
-                  class="clickable" onclick="showCoupon()">
+        <a-entity id="btn-coupon" position="1.2 0.1 0.5" rotation="-90 0 0" class="clickable" onclick="showCoupon()">
           <a-plane color="#2196F3" width="1" height="0.4"></a-plane>
           <a-text value="Coupon" align="center" color="#FFF" width="3" position="0 0 0.1"></a-text>
         </a-entity>
@@ -46,6 +43,20 @@
     </a-scene>
 
     <script>
+      // 1. URL에서 파라미터 읽기
+      const urlParams = new URLSearchParams(window.location.search);
+      const userType = urlParams.get('type'); 
+      const welcomeText = document.querySelector('#welcome-text');
+
+      // 2. 접속 타입에 따른 화면 설정 (무슬림/일반)
+      if (userType === 'muslim') {
+        welcomeText.setAttribute('value', 'Assalamu Alaikum! K-VIBE'); // 무슬림 인사말
+        document.querySelector('#btn-survey').querySelector('a-plane').setAttribute('color', '#006400'); // 이슬람 상징색 녹색으로 변경
+      } else {
+        welcomeText.setAttribute('value', 'Welcome to K-VIBE!');
+      }
+
+      // 기능 함수들
       const video = document.querySelector('#k-vibe-video');
       const videoDisplay = document.querySelector('#video-display');
       const couponDisplay = document.querySelector('#coupon-display');
